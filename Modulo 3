@@ -1,0 +1,28 @@
+-- ==========================================================
+-- Archivo: modulo2_unidad1_diseno.sql
+-- Módulo 2 - Unidad 1: Diseño y creación de tablas de ventas
+-- ==========================================================
+
+-- 1. Tabla de Clientes
+CREATE TABLE clientes (
+    -- id_cliente: INT para un identificador numérico entero, óptimo para indexación futura
+    id_cliente INT,
+    -- nombre: VARCHAR(100) reserva longitud variable con un tope razonable para nombres personales o de empresas
+    nombre VARCHAR(100),
+    -- perfil_bio: TEXT soporta bloques extensos de texto libre (notas, biografías) sin límite estricto fijo
+    perfil_bio TEXT,
+    -- fecha_registro: DATE almacena año, mes y día de forma precisa, descartando horas y minutos innecesarios
+    fecha_registro DATE
+);
+
+-- 2. Tabla de Productos
+CREATE TABLE productos (
+    -- id_producto: INT para identificar de manera unívoca a cada artículo del inventario
+    id_producto INT,
+    -- descripcion: VARCHAR(255) permite descripciones detalladas sin desperdiciar almacenamiento
+    descripcion VARCHAR(255),
+    -- precio: DECIMAL(10, 2) garantiza precisión aritmética fija para dinero, evitando desfasajes de punto flotante (FLOAT)
+    precio DECIMAL(10, 2),
+    -- esta_activo: SMALLINT (1 = activo, 0 = inactivo) asegura compatibilidad nativa directa tanto en PostgreSQL como en SQL Server
+    esta_activo SMALLINT
+);
