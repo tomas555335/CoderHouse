@@ -1,28 +1,25 @@
--- ==========================================================
 -- Archivo: modulo2_unidad1_diseno.sql
--- Módulo 2 - Unidad 1: Diseño y creación de tablas de ventas
--- ==========================================================
 
--- 1. Tabla de Clientes
+-- Tabla 1: Clientes
 CREATE TABLE clientes (
-    -- id_cliente: INT para un identificador numérico entero, óptimo para indexación futura
+    -- id_cliente: Uso INT porque es un número entero simple para identificar a cada cliente
     id_cliente INT,
-    -- nombre: VARCHAR(100) reserva longitud variable con un tope razonable para nombres personales o de empresas
+    -- nombre: Pongo VARCHAR(100) porque alcanza de sobra para nombres largos y no gasta espacio de más
     nombre VARCHAR(100),
-    -- perfil_bio: TEXT soporta bloques extensos de texto libre (notas, biografías) sin límite estricto fijo
+    -- perfil_bio: Elijo TEXT porque una biografía o notas pueden ser largas y no quiero poner un límite fijo
     perfil_bio TEXT,
-    -- fecha_registro: DATE almacena año, mes y día de forma precisa, descartando horas y minutos innecesarios
+    -- fecha_registro: Uso DATE porque la consigna pide solo la fecha, así que no necesito guardar hora ni minutos
     fecha_registro DATE
 );
 
--- 2. Tabla de Productos
+-- Tabla 2: Productos
 CREATE TABLE productos (
-    -- id_producto: INT para identificar de manera unívoca a cada artículo del inventario
+    -- id_producto: Uso INT para tener un código o identificador numérico único para cada artículo
     id_producto INT,
-    -- descripcion: VARCHAR(255) permite descripciones detalladas sin desperdiciar almacenamiento
+    -- descripcion: Elijo VARCHAR(255) porque la consigna pide hasta 255 caracteres para describir el producto
     descripcion VARCHAR(255),
-    -- precio: DECIMAL(10, 2) garantiza precisión aritmética fija para dinero, evitando desfasajes de punto flotante (FLOAT)
+    -- precio: Uso DECIMAL(10, 2) porque guarda 2 decimales para los centavos. No uso FLOAT porque para plata genera errores de redondeo
     precio DECIMAL(10, 2),
-    -- esta_activo: SMALLINT (1 = activo, 0 = inactivo) asegura compatibilidad nativa directa tanto en PostgreSQL como en SQL Server
+    -- esta_activo: Elijo SMALLINT para usar 1 (activo) y 0 (inactivo); así me aseguro de que funcione tanto en PostgreSQL como en SQL Server
     esta_activo SMALLINT
 );
