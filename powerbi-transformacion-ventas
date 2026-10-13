@@ -1,0 +1,65 @@
+Práctica: Conectividad y Transformación de Datos en Power BI
+
+Dataset:`Ventas_export_legacy.xlsx`  
+Herramienta:** Power BI Desktop / Editor de Power Query  
+
+1. Transformaciones Realizadas y Orden de Ejecución
+
+El proceso de preparación se estructuró de forma secuencial para asegurar la reproducibilidad de los datos:
+
+1.1. Carga y navegación: Importación del archivo Excel mediante el conector nativo de Power BI Desktop y selección de la hoja `VENTAS_EXPORT`.
+1.2. Filtrado de filas completamente vacías: En la columna `COD_OP` se desmarcó el valor `null`/en blanco, eliminando 4 registros vacíos producidos por la exportación del sistema legacy.
+1.3. Eliminación de duplicados: Se aplicó `Quitar duplicados` a nivel global para limpiar 48 transacciones repetidas exactamente en todos sus campos, evitando inflar las métricas de venta.
+1.4. Tratamiento de valores nulos:
+   - Descuentos (`DTO_PCT`): Se reemplazaron los valores `null` por `0.0`.
+   - Total de venta (`TOT_VTA`): Para los registros vacíos, se recalculó el importe utilizando la fórmula:  
+     `if [TOT_VTA] = null then [CANT] * [PU_VTA] * (1 - [DTO_PCT]) else [TOT_VTA]`
+1.5. Renombrado y asignación de tipos de datos: Se adoptó una nomenclatura descriptiva en español bajo convención `snake_case` y se tipificó cada variable.
+1.6. Separación de entidades (Normalización): Se duplicó la consulta principal para aislar la dimensión de clientes (`dim_clientes`) de la tabla de hechos transaccional (`fact_ventas`).
+
+2. Justificación Técnica de Tipos de Datos Asignados
+
+| Columna | Tipo de Dato | Justificación Técnica |
+
+| `id_operacion` |Texto | Identificador alfanumérico transaccional (`OP-100820`). No requiere operaciones aritméticas. |
+| `id_cliente` |Texto (Text) | Clave de enlace (PK/FK). Se mantiene en texto para preservar códigos alfanuméricos como `COD_CLI_005`. |
+| `nombre_cliente`, `email`, `telefono`, `ciudad`, `provincia`, `segmento_cliente` | Texto | Atributos cualitativos y de contacto. El teléfono se tipifica como texto para preservar prefijos y guiones sin interpretarlos como restas. |
+| `esta_activo` |Texto | Indicador de estado (`S`/`N`). |
+| `fecha_alta_cliente`, `fecha_venta` | Fecha | Permite construir jerarquías de tiempo y funciones de Time Intelligence en DAX, evitando la sobrecarga de memoria que implicaría almacenar horas y minutos innecesarios (`DateTime`). |
+| `id_producto`, `cantidad` | Número Entero | Unidades físicas y códigos numéricos de catálogo sin decimales. |
+| `precio_unitario`, `total_venta` | Número Decimal Fijo | Garantiza exactitud de coma fija hasta 4 decimales, evitando desfasajes de punto flotante en cálculos monetarios. |
+| `porcentaje_descuento` | Porcentaje / Decimal| Ratio numérico comprendido entre 0.0 y 1.0 para operar multiplicaciones directas. |
+| `producto`, `categoria_producto`, `moneda`, `canal_venta` | Texto | Dimensiones categóricas para filtrado y segmentación en visualizaciones. |
+
+---
+
+3. Resolución de Valores Nulos y Duplicados
+
+- Filas vacías: Se descartaron las 4 filas nulas mediante filtro en `id_operacion`. Mantenerlas alteraría el conteo real de operaciones y métricas de promedios.
+- Duplicados: Se quitaron las 48 filas idénticas detectadas en el lote original para no duplicar la facturación total del negocio.
+- Nulos en `porcentaje_descuento`: Los registros nulos correspondían a ventas a precio regular sin promoción. Se reemplazó `null` por `0.0` para posibilitar multiplicaciones directas sin arrojar errores matemáticos.
+- Nulos en `total_venta`: En lugar de descartar las filas, el monto facturado se reconstruyó matemáticamente multiplicando la cantidad por el precio unitario neto de descuento, garantizando la completitud del historial de ventas.
+- Nulos en contacto de clientes (`email`, `telefono`): Se mantuvieron como `null` en la tabla de clientes para reflejar con fidelidad la calidad del padrón de usuarios sin ingresar datos ficticios.
+
+
+
+4. Criterio de Separación: Datos de Cliente vs. Transacción
+
+Siguiendo las bases del modelo dimensional (Esquema Estrella):
+
+4.1. **Tabla de Dimensión (`dim_clientes`):**  
+   - Contiene únicamente los atributos que definen al cliente: `id_cliente`, `nombre_cliente`, `email`, `telefono`, `ciudad`, `provincia`, `segmento_cliente`, `esta_activo`, `fecha_alta_cliente`.
+   - Se aplicó **Quitar duplicados** sobre `id_cliente` para garantizar que cada comprador tenga un único registro (Clave Primaria unívoca).
+4.2. **Tabla de Hechos (`fact_ventas`):**  
+   - Contiene las métricas numéricas y descriptores de cada venta: `id_operacion`, `fecha_venta`, `id_producto`, `producto`, `categoria_producto`, `cantidad`, `precio_unitario`, `porcentaje_descuento`, `total_venta`, `moneda`, `canal_venta`.
+   - Se removieron los atributos redundantes del cliente (como nombre, email o ciudad), conservando únicamente `id_cliente` como **Clave Foránea (FK)** para vincular ambas tablas en el modelo mediante una relación **1 a Varios (1:N)**.
+
+---
+
+## 5. Capturas de Pasos Aplicados en Power Query
+
+### Tabla `fact_ventas`
+*(Insertar captura de pantalla del panel derecho de `fact_ventas`)*
+
+### Tabla `dim_clientes`
+*(Insertar captura de pantalla del panel derecho de `dim_clientes`)*
