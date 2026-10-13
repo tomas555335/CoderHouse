@@ -59,7 +59,7 @@ Siguiendo las bases del modelo dimensional (Esquema Estrella):
 ## 5. Capturas de Pasos Aplicados en Power Query
 
 ### Tabla `fact_ventas`
-*(Insertar captura de pantalla del panel derecho de `fact_ventas`)*
+https://github.com/tomas555335/CoderHouse/commit/bb7493b74784356fb93904c2caf49fd315dfdc92
 
 ### Tabla `dim_clientes`
 *(Insertar captura de pantalla del panel derecho de `dim_clientes`)*
