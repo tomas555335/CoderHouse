@@ -1,0 +1,47 @@
+# Práctica: Lenguaje M y Exploración del Editor Avanzado en Power Query
+
+**Dataset:** Sample Superstore Dataset  
+**Origen:** [Kaggle - Superstore Dataset Final](https://www.kaggle.com/datasets/vivek468/superstore-dataset-final)  
+**Formato:** CSV  
+
+1. Código M Final (Editor Avanzado)
+
+powerquery
+let
+    Origen = Csv.Document(File.Contents("C:\Users\tomas\OneDrive\Desktop\Sample - Superstore.csv"), [Delimiter = ",", Columns = 21, QuoteStyle = QuoteStyle.None]),
+    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+    #"Tipo de columna cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos", {{"Row ID", Int64.Type}, {"Order ID", type text}, {"Order Date", type date}, {"Ship Date", type text}, {"Ship Mode", type text}, {"Customer ID", type text}, {"Customer Name", type text}, {"Segment", type text}, {"Country", type text}, {"City", type text}, {"State", type text}, {"Postal Code", Int64.Type}, {"Region", type text}, {"Product ID", type text}, {"Category", type text}, {"Sub-Category", type text}, {"Product Name", type text}, {"Sales", Int64.Type}, {"Quantity", Int64.Type}, {"Discount", Int64.Type}, {"Profit", Int64.Type}}, "es"),
+    #"Filas filtradas" = Table.SelectRows(#"Tipo de columna cambiado", each ([Segment] <> "Home Office")),
+
+    // Modificación manual: Renombrado de columna técnica a nombre legible de negocio
+    #"MiTransformacionManual" = Table.RenameColumns(#"Filas filtradas", {{"Postal Code", "Codigo_Postal"}})
+in
+    #"MiTransformacionManual"
+
+
+
+
+
+-- Preguntas Teóricas y Justificaciones
+
+ 1. ¿Por qué es útil para un analista de datos entender la estructura `let … in`?
+El bloque `let ... in` define la estructura secuencial y funcional del lenguaje M en Power Query:
+* **Bloque `let`:** Es el espacio donde se declaran las variables o pasos secuenciales de transformación. Cada paso procesa la tabla intermedia generada en el paso anterior.
+* **Bloque `in`:** Indica qué variable o paso específico contiene la tabla final que debe cargarse y devolverse al modelo de datos.
+
+**Utilidad práctica para el analista:**
+Comprender esta estructura permite auditar el flujo de dependencia entre pasos, reparar errores cuando se rompe una referencia en la cadena (por ejemplo, al renombrar o eliminar variables), añadir comentarios explicativos en el pipeline de datos y programar transformaciones avanzadas que no están disponibles mediante los botones de la interfaz gráfica.
+
+
+2. ¿Qué significa que el lenguaje M sea *Case Sensitive* y cuál es la consecuencia práctica de ignorarlo?
+Que el lenguaje M sea *Case Sensitive* significa que el motor de evaluación distingue estrictamente entre letras mayúsculas y minúsculas en nombres de funciones, identificadores de variables y nombres de columnas.
+
+**Consecuencia práctica:**
+Si se escribe el nombre de una función nativa en minúsculas (por ejemplo, `table.selectrows` en vez de `Table.SelectRows`) o si se hace referencia a una columna como `[codigo_postal]` cuando previamente fue definida como `[Codigo_Postal]`, el motor de evaluación no reconocerá el identificador y detendrá la ejecución arrojando un error de evaluación (`Expression.Error: The field/function wasn't recognized`).
+
+
+ 3. Criterio de Selección del Dataset
+Se eligió el dataset transaccional *Sample Superstore* porque cumple con los requisitos necesarios para la práctica:
+1. **Diversidad de tipos de datos:** Cuenta con más de 15 columnas que combinan datos temporales (`Order Date`), atributos de texto/categóricos (`Segment`, `Ship Mode`) y métricas numéricas (`Sales`, `Quantity`, `Profit`).
+2. **Columnas técnicas a estandarizar:** Incluye campos como `Postal Code` y `Row ID` que requieren normalización y renombrado hacia términos claros de negocio.
+3. **Escenario real de limpieza:** Contiene múltiples transacciones y segmentos que permiten aplicar filtros lógicos de filas y transformaciones realistas de preparación de datos antes del análisis.
