@@ -208,19 +208,24 @@ FROM ventas_por_mes
 ORDER BY mes;
 
 
+-- Bloque de cierre 
 -- 
--- Bloque de cierre — Hallazgos de negocio
--- 
--- 1. Alta concentración de ingresos en el producto tecnológico clave:
---    El producto id_producto = 1 (Laptop Pro 15) acumuló una facturación de $3,600.00
---    sobre un total de $6,239.00, concentrando el 57.7% de los ingresos totales.
+-- 1. Concentración de facturación en producto clave (id_producto = 1):
+--    El producto id_producto = 1 genera $2,400.00 sobre una facturación total del mes 3 
+--    de $2,699.00 (88.9% del total mensual) y representa $3,600.00 sobre la facturación global 
+--    de $6,239.00 (57.7% de los ingresos totales). 
+--    Proyección JOIN: Mediante un INNER JOIN con la tabla 'productos', podremos identificar
+--    el nombre exacto y la categoría de este producto para evaluar riesgos de stock.
 --
--- 2. Fidelidad y en la cartera de clientes:
---    El 100% de los clientes registrados (IDs 1, 2, 3, 4 y 5) presentan recurrencia en las compras,
---    habiendo concretado exactamente 2 pedidos cada uno en el período que analizamos.
---    El cliente con mayor volumen es el id_cliente = 1 con $2,640.00 gastados.
+-- 2. Recurrencia y distribución de la cartera de clientes (id_cliente = 1 y 2):
+--    Los clientes id_cliente = 1 y id_cliente = 2 concentran la mayor recurrencia y volumen.
+--    El cliente 1 realizó 2 pedidos por un total gastado de $2,640.00 (42.3% del total general),
+--    mientras que el cliente 2 acumula $1,114.00 en 2 transacciones.
+--    Proyección JOIN: Al aplicar un JOIN con la tabla 'clientes', podremos obtener el nombre, 
+--    email y segmento de estos compradores recurrentes para diseñar estrategias de fidelización.
 --
--- 3. Variación de ticket promedio según mix de producto:
---    Aunque se registra un flujo de transacciones constante a lo largo de las fechas de venta,
---    el ticket promedio oscila entre transacciones individuales (desde $140.00 en compras
---    de bajo costo unitario hasta $2,400.00 en órdenes de mayor costo).
+-- 3. Análisis de estacionalidad mensual y ticket promedio:
+--    El mes 3 (Marzo) registró la mayor facturación con $2,699.00 quedándose 'Por encima' 
+--    del promedio mensual general ($2,079.67), impulsado por compras de alto valor unitario.
+--    Proyección JOIN: Unir las tablas transaccionales con 'territorios' o 'canales' vía JOIN
+--    permitirá determinar si este pico de facturación mensual responde a ventas online o en sucursales físicas.
